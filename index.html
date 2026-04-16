@@ -3,25 +3,54 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1" />
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="referrer" content="origin">
   <style>
-    html, body { margin:0; height:100%; background:#000; overflow:hidden; }
-    #player { position:fixed; inset:0; width:100vw; height:100vh; }
-    iframe { position:fixed; inset:0; width:100vw; height:100vh; border:0; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    #player {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+    #status {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 9999;
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      font: 14px/1.4 sans-serif;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div id="player"></div>
+  <div id="status"></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     let player;
 
+    function showStatus(msg) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
         width: '100%',
         height: '100%',
-        host: 'https://www.youtube-nocookie.com',
+        host: 'https://www.youtube.com',
         playerVars: {
           listType: 'playlist',
           list: 'PLvahqwMqN4M3M-DWpE8ABj0I0-3LgEUF5',
@@ -31,21 +60,31 @@
           controls: 0,
           rel: 0,
           loop: 1,
-          enablejsapi: 1
+          enablejsapi: 1,
+          origin: 'https://grimpig68.github.io'
         },
         events: {
-          onReady: onPlayerReady
+          onReady: onPlayerReady,
+          onError: onPlayerError
         }
       });
     }
 
     function onPlayerReady(event) {
-      event.target.setShuffle(true);
+      try {
+        event.target.setShuffle(true);
+        setTimeout(() => {
+          event.target.nextVideo();
+          event.target.playVideo();
+        }, 400);
+      } catch (e) {
+        showStatus('Player loaded, but shuffle failed: ' + e.message);
+      }
+    }
 
-      setTimeout(() => {
-        event.target.nextVideo();
-        event.target.playVideo();
-      }, 300);
+    function onPlayerError(event) {
+      showStatus('YouTube player error: ' + event.data);
+      console.log('YouTube player error:', event.data);
     }
   </script>
 </body>
