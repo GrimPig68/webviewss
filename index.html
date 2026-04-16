@@ -6,15 +6,47 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <style>
     html, body { margin:0; height:100%; background:#000; overflow:hidden; }
+    #player { position:fixed; inset:0; width:100vw; height:100vh; }
     iframe { position:fixed; inset:0; width:100vw; height:100vh; border:0; }
   </style>
 </head>
 <body>
-  <iframe
-    src="https://www.youtube-nocookie.com/embed?listType=playlist&list=PLvahqwMqN4M2-T3_xMIyJt2yEKTlSK6cv&autoplay=1&mute=1&playsinline=1&controls=0&rel=0&loop=1"
-    referrerpolicy="strict-origin-when-cross-origin"
-    allow="autoplay; fullscreen; picture-in-picture"
-    allowfullscreen>
-  </iframe>
+  <div id="player"></div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        width: '100%',
+        height: '100%',
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {
+          listType: 'playlist',
+          list: 'PLvahqwMqN4M2-T3_xMIyJt2yEKTlSK6cv',
+          autoplay: 1,
+          mute: 1,
+          playsinline: 1,
+          controls: 0,
+          rel: 0,
+          loop: 1,
+          enablejsapi: 1
+        },
+        events: {
+          onReady: onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      event.target.setShuffle(true);
+
+      setTimeout(() => {
+        event.target.nextVideo();
+        event.target.playVideo();
+      }, 300);
+    }
+  </script>
 </body>
 </html>
